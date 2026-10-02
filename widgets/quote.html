@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Wisdom Scroll</title>
+<style>
+@font-face{font-family:PS2P;src:url(../fonts/PressStart2P.ttf);font-display:swap}
+@font-face{font-family:Silk;src:url(../fonts/Silkscreen.ttf);font-display:swap}
+@font-face{font-family:VT;src:url(../fonts/VT323.ttf);font-display:swap}
+:root{--bg0:#0e0b26;--bg1:#1b1538;--bg2:#2a2150;--bd:#5b3f8c;--mut:#a99be6;--tx:#f4ead5;--ac:#ffcf6b;--ink:#0e0b26;--warm:#ff8a5c;--ok:#7bd389;--info:#6ec6ff;--rose:#ff7aa2;--sh:#0e0b26;--pa:#f4ead5;--pb:#d8c59a;--pi:#2a2150}
+[data-theme=dawn]{--bg0:#2b1428;--bg1:#43203a;--bg2:#5e2c47;--bd:#a8506a;--mut:#f0b5a0;--tx:#fff1e0;--ac:#ffb454;--ink:#2b1428;--warm:#ff7a5c;--ok:#9ae08a;--info:#7fd0ff;--rose:#ff8fb1;--sh:#2b1428;--pa:#fff0d6;--pb:#e8c49a;--pi:#43203a}
+[data-theme=forest]{--bg0:#0b1a14;--bg1:#12291f;--bg2:#1c3b2b;--bd:#3f7a54;--mut:#9fd1a8;--tx:#eef3d8;--ac:#f2d16b;--ink:#0b1a14;--warm:#f0975a;--ok:#8be28b;--info:#6fd0d8;--rose:#ff9ab0;--sh:#0b1a14;--pa:#eef0d2;--pb:#c4cc9a;--pi:#12291f}
+[data-theme=sakura]{--bg0:#5a2d49;--bg1:#fff0f3;--bg2:#ffdde7;--bd:#d77a9b;--mut:#a8587a;--tx:#4a2340;--ac:#e0457b;--ink:#fff7f9;--warm:#e8743c;--ok:#2f9a55;--info:#3a8fd0;--rose:#e0457b;--sh:#8a4768;--pa:#fffaf5;--pb:#f2c6d4;--pi:#4a2340}
+[data-theme=paper]{--bg0:#3b3326;--bg1:#f3ead7;--bg2:#e6d9bc;--bd:#8c7a58;--mut:#7a6a4c;--tx:#2f2a20;--ac:#b5651d;--ink:#fbf4e2;--warm:#c4501f;--ok:#4d8a3b;--info:#2f6f9f;--rose:#b8486a;--sh:#6b5d44;--pa:#fbf4e2;--pb:#dccba5;--pi:#2f2a20}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden;background:transparent}
+body{font-family:Silk,monospace;color:var(--tx);-webkit-font-smoothing:none;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
+.panel{position:absolute;inset:0 4px 4px 0;background:var(--bg1);border:4px solid var(--bd);box-shadow:4px 4px 0 var(--sh),inset 0 0 0 2px var(--bg0);overflow:hidden}
+[data-bg=transparent] .panel{background:transparent;border:0;box-shadow:none;inset:0}
+canvas{image-rendering:pixelated;image-rendering:crisp-edges;image-rendering:pixelated}
+.btn{font-family:Silk,monospace;font-size:var(--bfs,1rem);line-height:1;letter-spacing:.04em;text-transform:uppercase;color:var(--ink);background:var(--ac);border:2px solid var(--sh);padding:.6em .9em;cursor:pointer;position:relative;transform:translateY(-2px);box-shadow:0 4px 0 var(--sh),inset 0 2px 0 rgba(255,255,255,.3),inset 0 -2px 0 rgba(0,0,0,.2);display:inline-flex;align-items:center;justify-content:center;gap:.5em;white-space:nowrap}
+.btn.ghost{background:var(--bg2);color:var(--tx);border-color:var(--bd);box-shadow:0 4px 0 var(--bd),inset 0 2px 0 rgba(255,255,255,.1),inset 0 -2px 0 rgba(0,0,0,.2)}
+.btn:hover{filter:brightness(1.08)}
+.btn:active,.btn.pressed{transform:translateY(0);box-shadow:0 2px 0 var(--sh),inset 0 2px 0 rgba(0,0,0,.15)}
+.btn.ghost:active,.btn.ghost.pressed{box-shadow:0 2px 0 var(--bd),inset 0 2px 0 rgba(0,0,0,.15)}
+.btn:focus-visible,input:focus-visible,select:focus-visible{outline:2px dashed var(--tx);outline-offset:3px}
+.btn[aria-pressed=false].tog{opacity:.7}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition:none!important}}
+
+html{font-size:clamp(9px,min(2.4vw,4.4vh),16px)}
+.panel{padding:.7rem 1rem .9rem;--w:#8a5230;--wl:#c18a56;--wd:#4f2c18}
+.scroll{height:100%;display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start}
+.rod{flex:0 0 auto;height:1.1rem;position:relative;margin:0 -.5rem;background:linear-gradient(180deg,var(--wl) 0 25%,var(--w) 25% 70%,var(--wd) 70%);border:2px solid var(--sh);z-index:2}
+.rod::before,.rod::after{content:"";position:absolute;top:-2px;bottom:-2px;width:.7rem;background:linear-gradient(180deg,#f4ead5 0 30%,#d9bf8a 30% 100%);border:2px solid var(--sh)}
+.rod::before{left:-.5rem}.rod::after{right:-.5rem}
+.paper{flex:1 1 0;min-height:0;margin:0 .2rem;position:relative;background:var(--pa);border-left:.3rem solid var(--pb);border-right:.3rem solid var(--pb);display:flex;flex-direction:column;overflow:hidden;
+ background-image:linear-gradient(90deg,rgba(120,80,30,.16),transparent .7rem,transparent calc(100% - .7rem),rgba(120,80,30,.16));animation:unroll 1s steps(10) both}
+.paper.noanim{animation:none}
+@keyframes unroll{from{flex-grow:0}to{flex-grow:1}}
+.in{flex:1;min-height:0;display:flex;flex-direction:column;padding:.55rem .9rem .6rem;gap:.35rem;opacity:0;color:var(--pi)}
+.paper.show .in{opacity:1}
+.lab{font-family:Silk,monospace;font-size:.8rem;letter-spacing:.14em;text-transform:uppercase;text-align:center;opacity:.65;flex:0 0 auto}
+.body{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.q{font-family:VT,monospace;text-align:center;line-height:1.02;width:100%;text-wrap:balance;overflow-wrap:break-word}
+.q.pop{animation:fade .3s steps(3)}
+@keyframes fade{from{opacity:0;transform:translateY(.3rem)}}
+.foot{flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;gap:.5rem;padding-top:.1rem}
+.dv{flex:1;height:.2rem;background:repeating-linear-gradient(90deg,var(--pb) 0 .3rem,transparent .3rem .6rem);margin-right:.4rem;opacity:.9}
+.no{font-family:Silk,monospace;font-size:.75rem;opacity:.6;letter-spacing:.08em;white-space:nowrap}
+.nx{--bfs:.85rem;padding:.45em .7em;background:var(--pi);color:var(--pa);border-color:var(--sh)}
+.nx:focus-visible{outline-color:var(--pi)}
+@media (max-height:175px){.lab{display:none}.rod{height:.9rem}}
+[data-bg=transparent] .panel{padding:.3rem .5rem .6rem}
+</style></head><body>
+<div class="panel"><div class="scroll">
+ <div class="rod"></div>
+ <div class="paper" id="paper"><div class="in">
+  <div class="lab" id="lab">Scroll of the day</div>
+  <div class="body" id="body"><div class="q" id="q"></div></div>
+  <div class="foot"><div class="dv"></div><div class="no" id="no"></div><button class="btn nx" id="next" aria-label="Show another line">Next</button></div>
+ </div></div>
+ <div class="rod"></div>
+</div></div>
+<script>
+var $=function(i){return document.getElementById(i)};
+var Q=new URLSearchParams(location.search);
+function QP(k,d){var v=Q.get(k);return(v===null||v==='')?d:v}
+function QNum(k,d,lo,hi){var v=parseFloat(QP(k,''));return(isFinite(v)&&v>=lo&&v<=hi)?v:d}
+var RM=false;try{RM=matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){}
+(function(){
+  var de=document.documentElement;
+  var th=String(QP('theme','moonlit')).toLowerCase();
+  if(!/^(moonlit|dawn|forest|sakura|paper)$/.test(th))th='moonlit';
+  de.setAttribute('data-theme',th);
+  if(String(QP('bg','')).toLowerCase()==='transparent')de.setAttribute('data-bg','transparent');
+  var ac=String(QP('accent','')).replace('#','');
+  if(/^([0-9a-f]{3}|[0-9a-f]{6})$/i.test(ac)){
+    if(ac.length===3)ac=ac.replace(/./g,'$&$&');
+    var r=parseInt(ac.substr(0,2),16),g=parseInt(ac.substr(2,2),16),b=parseInt(ac.substr(4,2),16);
+    de.style.setProperty('--ac','#'+ac);
+    de.style.setProperty('--ink',(0.299*r+0.587*g+0.114*b)>150?'#1b1538':'#fff8ec');
+  }
+})();
+function cssv(n){return getComputedStyle(document.documentElement).getPropertyValue(n).trim()}
+function makeStore(name){
+  var mem={},pre='ql.'+name+'.'+String(QP('id','')).replace(/[^\w-]/g,'').slice(0,24)+'.';
+  return{
+    get:function(k,d){
+      try{var v=localStorage.getItem(pre+k);if(v!==null)return JSON.parse(v)}catch(e){}
+      return(k in mem)?mem[k]:d;
+    },
+    set:function(k,v){mem[k]=v;try{localStorage.setItem(pre+k,JSON.stringify(v))}catch(e){}}
+  };
+}
+function pxIcon(rows,pal){
+  var h=rows.length,w=rows[0].length,c=document.createElement('canvas');c.width=w;c.height=h;
+  var x=c.getContext('2d');
+  for(var j=0;j<h;j++)for(var i=0;i<w;i++){var ch=rows[j][i];if(ch!=='.'&&pal[ch]){x.fillStyle=pal[ch];x.fillRect(i,j,1,1)}}
+  c.setAttribute('aria-hidden','true');return c;
+}
+function pad2(n){return(n<10?'0':'')+n}
+function fitText(el,box,maxPx,minPx){
+  var s=maxPx;el.style.fontSize=s+'px';
+  while(s>minPx&&(el.scrollHeight>box.clientHeight||el.scrollWidth>box.clientWidth)){s-=1;el.style.fontSize=s+'px'}
+}
+
+(function(){
+var L=["Done badly is still done.","Start with 2 minutes. Momentum does the rest.","Rest is part of the quest.","You don't need to feel ready. You just need to begin.","One small quest beats a perfect plan.","Future you will be glad you opened the doc.","Progress is allowed to be ugly.","Your brain is not broken. It just wants a different map.","Pick one thing. Only one. Go.","A messy start still moves the story forward.","Water, snack, stretch. Then try again.","Tired is a stat, not a flaw. Plan around it.","Small steps count on the same scoreboard as big ones.","Today only needs a good-enough effort.","If it takes under two minutes, do it now and feel the win.","You can restart as many times as you need to.","Missed a day? The game keeps your save file.","Make it easier to start, not harder to quit.","The hardest part is the first sentence. Write a bad one.","Be kind to the version of you who is trying.","A five-minute timer is a very small door. Walk through it.","Break the quest into smaller quests.","You have survived every hard day so far.","Focus is a muscle that also needs naps.","Treat it as an experiment, not a test.","Finish the next tiny step, then choose again.","Your pace is a valid pace.","Clear one thing off the table. Notice how that feels.","Not now does not mean not ever.","Show up for ten minutes. Leave if you must.","Celebrate the boring wins too.","Rested minds learn faster. Sleep is studying.","You are allowed to ask for help. It is a power-up.","Imperfect pages get read. Blank pages do not.","Body first: stand, stretch, sip. Brain follows.","Today's goal: be a little less stuck than yesterday.","Let the timer do the worrying.","Every checkbox is a tiny victory lap.","You are not behind. You are on your own route.","Close the extra tabs. Keep the one that matters."];
+var MON=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+var ST=makeStore('quote'),d=new Date(),key=d.getFullYear()+'-'+pad2(d.getMonth()+1)+'-'+pad2(d.getDate());
+var dayNum=Math.floor(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())/864e5);
+var S=ST.get('s',null);if(!S||S.k!==key)S={k:key,off:0};
+function idx(){return((dayNum*7+S.off*11)%L.length+L.length)%L.length}
+var paper=$('paper'),q=$('q'),timer=null;
+function fit(){fitText(q,$('body'),Math.round(parseFloat(getComputedStyle(document.documentElement).fontSize)*3.1),10)}
+function setText(){q.textContent=L[idx()];$('lab').textContent=S.off===0?'Scroll of the day · '+MON[d.getMonth()]+' '+d.getDate():'Another scroll';$('no').textContent=(idx()+1)+'/'+L.length;fit()}
+function unroll(){
+  clearTimeout(timer);paper.classList.remove('show');
+  if(RM){paper.classList.add('noanim','show');return}
+  paper.classList.remove('noanim');paper.style.animation='none';void paper.offsetWidth;paper.style.animation='';
+  timer=setTimeout(function(){paper.classList.add('show');q.classList.remove('pop');void q.offsetWidth;q.classList.add('pop');fit()},1000);
+}
+$('next').addEventListener('click',function(){S.off++;ST.set('s',S);setText();unroll()});
+document.addEventListener('keydown',function(e){if((e.key==='n'||e.key==='N')&&e.target===document.body)$('next').click()});
+addEventListener('resize',fit);
+setText();unroll();
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(fit);
+})();
+</script></body></html>
